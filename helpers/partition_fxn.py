@@ -1,14 +1,10 @@
-class EmptyItemListError(Exception):
-    pass
+from .errors import (
+    EmptyItemListError,
+    InvalidItemSize,
+    ReductionFunctionNotCallableError,
+    SizeFunctionNotCallableError
+)
 
-class SizeFunctionNotCallableError(Exception):
-    pass
-
-class ReductionFunctionNotCallableError(Exception):
-    pass
-
-class InvalidItemSize(Exception):
-    pass
 
 class Partitions:
     def __init__(self, items: list, with_repetitions: bool, size_function=None, reduction_function=None):
