@@ -280,24 +280,3 @@ def primorial(limit):
 
 def primorialPrimes(k, prime_numbers):
     return product(prime_numbers[:k])
-
-
-if __name__ == "__main__":
-    # print(factorize(2*2*3*5*7*7*7*13))
-    # print(numberOfDivisors(36))
-    # print(sumOfDivisors(36, 1))
-    # print(sumOfDivisors(36, 2))
-    # print(sumOfDivisors(284))
-    # print(factorize(997))
-    # fact = 2*3*4*5*6*7*8*9*10
-    # factors = factorize(fact)
-    # for p, power in factors.items():
-    #     print(p, power, factorInFactorial(10, p))
-    #     Factorization() / Factorization()
-    factorizations = getFactorizations(1000)
-    for n, factors in enumerate(factorizations):
-        nn = product(pow(prime, power) for prime, power in factors.items())
-        if n > 0 and n != nn:
-            print(n, nn, factors)
-    
-    print('Success!')

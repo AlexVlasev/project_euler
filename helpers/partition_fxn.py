@@ -1,17 +1,13 @@
-
-class Error(Exception):
+class EmptyItemListError(Exception):
     pass
 
-class EmptyItemListError(Error):
+class SizeFunctionNotCallableError(Exception):
     pass
 
-class SizeFunctionNotCallableError(Error):
+class ReductionFunctionNotCallableError(Exception):
     pass
 
-class ReductionFunctionNotCallableError(Error):
-    pass
-
-class InvalidItemSize(Error):
+class InvalidItemSize(Exception):
     pass
 
 class Partitions:
