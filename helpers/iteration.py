@@ -66,7 +66,7 @@ class PPTIterator:
             if not callable(condition_function):
                 raise InvalidArgumentError(f'Provided condition function is not a function. Provided type {type(condition_function)}')
             self.condition_function = condition_function
-            self.__nextFunction = self.__nextWithCondition
+            self.__nextFunction = self.__conditionalNextFunction
     
     def __iter__(self):
         return self
@@ -93,7 +93,7 @@ class PPTIterator:
     def __defaultNextFunction(self):
         return self.getNextTriple()
     
-    def __nextWithCondition(self):
+    def __conditionalNextFunction(self):
         """
         We skip triples that do not satisfy the condition
         and yield the first triple that does.
