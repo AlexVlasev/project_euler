@@ -5,6 +5,9 @@ from .iteration import product
 
 
 def factorize(number, prime_numbers=None):
+    """
+    Factorize a number via trial division given an optional list of prime numbers
+    """
     factors = dict()
     current = number
     
@@ -25,6 +28,9 @@ def factorize(number, prime_numbers=None):
     return factors
 
 def numberOfDivisors(number):
+    """
+    Get the number of unique divisors using a factorization obtained by trial division.
+    """
     factors = factorize(number)
     divisors = 1
     for _, power in factors.items():
@@ -32,6 +38,9 @@ def numberOfDivisors(number):
     return divisors
 
 def sumOfDivisors(number, div_power=1):
+    """
+    Get the sum of unique divisors using a factorization obtained by trial division.
+    """
     factors = factorize(number)
     total = 1
     for prime, power in factors.items():
@@ -41,7 +50,7 @@ def sumOfDivisors(number, div_power=1):
 
 @cached
 def generalizedPentagonalNumber(k):
-    return int(k*(3*k-1)/2)
+    return k*(3*k-1) // 2
 
 start = {
     0: 1,
@@ -53,6 +62,10 @@ start = {
 
 @cached
 def partitions(number):
+    """
+    Generate the number of partitions of a positive integer. The algorithm uses generalized
+    pentagonal numbers to speed things up.
+    """
     if number in start:
         return start[number]
     k = 0
@@ -75,39 +88,42 @@ def mod(number, mod=None):
     else:
         return number
 
-def normalFunction(p, power):
+def normalSodFunction(p, power):
     prime_power = pow(p, power)
     denominator = p - 1
-    return int((prime_power - 1) / denominator)
+    return (prime_power - 1) // denominator
 
-def moddedFunction(p, power, modNumber):
+def moddedSodFunction(p, power, modNumber):
     prime_power = pow(p, power + 1, modNumber)
     denominator = pow(p - 1, -1, modNumber)
-    return int((prime_power - 1) / denominator)
+    return (prime_power - 1) // denominator
 
-
+# Sum of divisors functions
 SOD_FUNCTIONS = {
-    'normal': normalFunction,
-    'modded': moddedFunction,
+    'normal': normalSodFunction,
+    'modded': moddedSodFunction,
 }
 
 class Factorization:
+    """
+    Perform multiplicative operations on numbers given their factorizations
+    """
     def __init__(self, factors: dict):
         self.factors = factors
     
-    def __pow__(self, exponent):
+    def __pow__(self, exponent: int):
         for p in self.factors.keys():
             self.factors[p] *= exponent
         return self
     
-    def __mul__(self, other):
+    def __mul__(self, other: Factorization):
         for p, power in other.factors.items():
             if p not in self.factors:
                 self.factors[p] = 0
             self.factors[p] += power
         return self
     
-    def __truediv__(self, other):
+    def __truediv__(self, other: Factorization):
         for p, power in other.factors.items():
             if p not in self.factors:
                 self.factors[p] = 0
@@ -117,7 +133,7 @@ class Factorization:
     def numOfDivisors(self, modNumber=None):
         return product((power + 1 for power in self.factors.values()), mod=modNumber)
 
-    def _choose_sod_function(self, modNumber=None):
+    def __chooseSodFunction(self, modNumber=None):
         if modNumber:
             return SOD_FUNCTIONS['modded']
         
@@ -129,7 +145,7 @@ class Factorization:
         return modded
 
     def sumOfDivisors(self, modNumber=None):
-        element = self._choose_sod_function(modNumber)
+        element = self.__chooseSodFunction(modNumber)
         generator = (element(p, power) for p, power in self.factors.items())
         result = product(generator, modNumber)
         return mod(result, modNumber)
@@ -145,6 +161,10 @@ class Factorization:
 
 
 class FactorizationWithList:
+    """
+    Perform multiplicative operations on numbers given their factorizations.
+    This is an alternative class that uses a fixed list of prime_numbers.
+    """
     def __init__(self, powers: list, prime_numbers: list, modNumber=None):
         self.powers = powers
         self.prime_numbers = prime_numbers
@@ -156,13 +176,13 @@ class FactorizationWithList:
             self.powers[index] *= exponent
         return self
     
-    def __mul__(self, other):
+    def __mul__(self, other: FactorizationWithList):
         powers = other.powers
         for index in range(self.length):
             self.powers[index] += powers[index]
         return self
     
-    def __truediv__(self, other):
+    def __truediv__(self, other: FactorizationWithList):
         powers = other.powers
         for index in range(self.length):
             self.powers[index] -= powers[index]
@@ -171,7 +191,7 @@ class FactorizationWithList:
     def numOfDivisors(self, modNumber=None):
         return product((power + 1 for power in self.powers), mod=modNumber)
 
-    def _choose_sod_function(self, modNumber=None):
+    def __chooseSodFunction(self, modNumber=None):
         if modNumber:
             return SOD_FUNCTIONS['modded']
         
@@ -183,7 +203,7 @@ class FactorizationWithList:
         return modded
 
     def sumOfDivisors(self, modNumber=None):
-        element = self._choose_sod_function(modNumber)
+        element = self.__chooseSodFunction(modNumber)
         generator = (element(prime, power) for prime, power in zip(self.prime_numbers, self.powers))
         result = product(generator, modNumber)
         return mod(result, modNumber)
@@ -200,6 +220,10 @@ class FactorizationWithList:
         return True
 
 class PartitionsFromList:
+    """
+    Get the number of partitions of a number given a list of numbers.
+    This uses a recursive algorithm without pentagonal numbers.
+    """
     def __init__(self, array):
         self.array_set = set(array)
         if len(self.array_set) == 0:
@@ -236,6 +260,11 @@ class PartitionsFromList:
         return count
 
 def factorInFactorial(n, p):
+    """
+    Obtain the power of a prime that divides n factorial (n!).
+    The algorithm uses repeated division by ever increasing powers of p.
+    It stops when the current iteration is less than the prime p.
+    """
     divided = n
     power = 0
     while divided >= p:
@@ -244,6 +273,10 @@ def factorInFactorial(n, p):
     return power
 
 def factorizeFactorial(n, prime_numbers=None):
+    """
+    Obtain the prime factorization of n factorial (n!) given an optional
+    list of prime numbers.
+    """
     factors = dict()
     primes_in_n = prime_numbers
     if not prime_numbers:
@@ -259,6 +292,9 @@ def factorizeFactorial(n, prime_numbers=None):
     return factors
 
 def getFactorizations(limit, prime_numbers=None):
+    """
+    Factorize a list of integers given an optional list of prime numbers.
+    """
     if prime_numbers:
         ps = prime_numbers
     else:
@@ -277,8 +313,13 @@ def getFactorizations(limit, prime_numbers=None):
     return factorizations
 
 def primorial(limit):
-    # Product of primes up to limit
+    """
+    Get the primorial product (i.e. 2 * 3 * 5 * 7 * 11 ...) up to a limit.
+    """
     return product(primes(limit))
 
 def primorialPrimes(k, prime_numbers):
+    """
+    Get the primorial product of the first k primes.
+    """
     return product(prime_numbers[:k])
