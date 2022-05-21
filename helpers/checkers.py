@@ -1,4 +1,4 @@
-from errors import InvalidArgumentError
+from .errors import InvalidArgumentError
 
 def isPalindrome(sequence):
     """
@@ -30,19 +30,3 @@ def isPandigital(sequence, min_digit=0, max_digit=9):
         if str(k) not in digits:
             return False
     return True
-
-if __name__ == '__main__':
-    assert not isPalindrome(-121)
-    assert isPalindrome('-1--1-')
-    assert isPalindrome('-1-1-')
-    assert isPalindrome('')
-
-    assert not isPandigital('1234')
-    try:
-        assert not isPandigital('', min_digit=0, max_digit=-1)
-    except InvalidArgumentError:
-        pass
-    assert isPandigital('-1234567', min_digit=1, max_digit=6)
-    assert isPandigital(123.4567809)
-
-    print("Success!")

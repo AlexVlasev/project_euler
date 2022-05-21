@@ -85,14 +85,3 @@ class Partitions:
             key=lambda item: self.size(item),
             reverse=True
         )
-
-if __name__ == "__main__":
-    partitions_class = Partitions([1, 2], True)
-    parts = partitions_class.partitions(5)
-    for p in parts:
-        print(p)
-
-    partitions_class = Partitions([1, 2, 3, 5], True)
-    parts = partitions_class.partitions(10)
-    for p in parts:
-        print(p)

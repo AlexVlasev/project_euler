@@ -1,6 +1,6 @@
 import heapq as hq
 
-from errors import InvalidArgumentError
+from .errors import InvalidArgumentError
 
 
 def product(iterable, mod=None):
@@ -53,7 +53,7 @@ class PPTIterator:
         self.heap = [(5, 4, 3)]
 
         if limit < 5:
-            raise InvalidArgumentError(f'Provided limit {limit} is invalid. Please provide a limit >= 5.')
+            raise InvalidArgumentError(f'Provided limit {limit}is invalid. Please provide a limit >= 5.')
 
         if condition_function is None:
             self.__nextFunction = self.__defaultNextFunction
@@ -121,20 +121,3 @@ def sumAitken(next_term_function):
     if not found_solution:
         print("Warning: Not able to find solution to within the desired tolerance of ", tolerance)
         print("The last computed extrapolate was ", aitkenX)
-
-if __name__ == "__main__":
-    def condition(triple):
-        c, _, _ = triple
-        return c > 98000, triple
-    
-    iterator = PPTIterator(100000, condition_function=condition)
-    for t in iterator:
-        print(t)
-
-    for condition in [1, [], {}, IndexError]:
-        try:
-            iterator = PPTIterator(100000, condition_function=condition)
-        except InvalidArgumentError:
-            pass
-
-    print('Success!')

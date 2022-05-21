@@ -299,3 +299,5 @@ if __name__ == "__main__":
         nn = product(pow(prime, power) for prime, power in factors.items())
         if n > 0 and n != nn:
             print(n, nn, factors)
+    
+    print('Success!')
