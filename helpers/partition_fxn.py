@@ -1,5 +1,6 @@
 from .errors import (
     EmptyItemListError,
+    InvalidArgumentError,
     InvalidItemSize,
     ReductionFunctionNotCallableError,
     SizeFunctionNotCallableError
@@ -7,14 +8,47 @@ from .errors import (
 
 
 class Partitions:
+    """
+    This is class for generating more general partitions given a list of items.
+    It can produce partitions with or without repetition.
+
+    It works as follows. A list of items is provided at construction. Then these items
+    are used to partition a given object. The class picks the largest item in the list
+    and "subtracts" it from the object. Then it recursively partitions the remaining
+    object until either nothing is left or no partition can be applied. It returns
+    all the valid partitions.
+
+    The class is meant to work in a more general way, where custom rules can be applied.
+    The size function controls how the items behave in the partition. For that we also
+    need a reduction function to help us define what "subtract" means.
+
+    For example, if we are partitioning integers, we can use the defaults. However,
+    if we are partitioning a string, the reduction function can be one that removes
+    a number of starting characters (based on the list of items). The size function will be
+    the length function.
+
+    This is incomplete and buggy still. It's also slow for reasonable inputs.
+    """
     def __init__(self, items: list, with_repetitions: bool, size_function=None, reduction_function=None):
+        self.__validateFunctions(size_function, reduction_function)
+
+        self.size = self.__defaultSizeFunction
+        if size_function:
+            self.size = size_function
+
+        self.reduce = self.__defaultReductionFunction
+        if reduction_function:
+            self.reduce = reduction_function
+
+        self.__validateItems(items, with_repetitions, size_function, reduction_function)
         self.items = items
-        self.length = len(items)
+        self.items.sort(
+            key=lambda item: self.size(item),
+            reverse=True
+        )
+        self.length = len(self.items)
+
         self.with_repetitions = with_repetitions
-        self.size = size_function
-        self.reduce = reduction_function
-        
-        self._initialize()
 
     def partitions(self, obj, start_index=0, printout=True):
         if printout:
@@ -46,34 +80,29 @@ class Partitions:
             print(f"Found {len(parts)} partitions of {obj}!\n")
         return parts
 
-    def _initialize(self):
-        if len(self.items) == 0:
+    def __validateFunctions(size_function, reduction_function):
+        if size_function is not None:
+            if not callable(size_function):
+                raise SizeFunctionNotCallableError()
+            if reduction_function is None:
+                raise InvalidArgumentError('Reduction function provided but no Size function provided.')
+
+        if reduction_function is not None:
+            if not callable(reduction_function):
+                raise ReductionFunctionNotCallableError()
+            if size_function is None:
+                raise InvalidArgumentError('Size function provided but no Reduction function provided.')
+
+    def __validateItems(items):
+        if len(items) == 0:
             raise EmptyItemListError("Provided item list is empty.")
 
-        if self.size is None:
-            self.size = self.__default_size
-        if not callable(self.size):
-            raise SizeFunctionNotCallableError("The provided size function is not a function.")
-
-        if self.reduce is None:
-            self.reduce = self.__default_reduce
-        if not callable(self.reduce):
-            raise ReductionFunctionNotCallableError("The provided reduction function is not a function.")
-
-        for item in self.items:
+        for item in items:
             if self.size(item) <= 0:
-                raise InvalidItemSize(f"The size of item {item} is {self.size(item)}. Size needs to be greater than 0")
+                raise InvalidItemSize(f"The size of item {item} is {self.size(item)}. The provided size must be positive.")
 
-        self._prepare_items()
-
-    def __default_size(self, item):
+    def __defaultSizeFunction(self, item):
         return item
     
-    def __default_reduce(self, obj, item):
+    def __defaultReductionFunction(self, obj, item):
         return item, obj - item
-    
-    def _prepare_items(self):
-        self.items.sort(
-            key=lambda item: self.size(item),
-            reverse=True
-        )
