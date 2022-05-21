@@ -52,6 +52,9 @@ class PPTIterator:
         self.limit = limit
         self.heap = [(5, 4, 3)]
 
+        if limit < 5:
+            raise InvalidArgumentError(f'Provided limit {limit} is invalid. Please provide a limit >= 5.')
+
         if condition_function is None:
             self.__nextFunction = self.__defaultNextFunction
         else:
@@ -59,9 +62,23 @@ class PPTIterator:
                 raise InvalidArgumentError(f'Provided condition function is not a function. Provided type {type(condition_function)}')
             self.condition_function = condition_function
             self.__nextFunction = self.__nextWithCondition
-
+    
     def __iter__(self):
         return self
+    
+    def __next__(self):
+        return self.__nextFunction()
+    
+    def getNextTriple(self):
+        if not self.heap:
+            raise StopIteration
+        
+        triple = hq.heappop(self.heap)
+        for t in get_triples(triple):
+            if t[0] <= self.limit:
+                hq.heappush(self.heap, t)
+        
+        return triple
 
     def __defaultNextFunction(self):
         return self.getNextTriple()
@@ -73,20 +90,6 @@ class PPTIterator:
             triple = self.getNextTriple()
             valid, value = self.condition_function(triple)
         return value
-    
-    def __next__(self):
-        return self.__nextFunction()
-    
-    def getNextTriple(self):
-        if not self.heap:
-            raise StopIteration
-
-        triple = hq.heappop(self.heap)
-        for t in get_triples(triple):
-            if t[0] <= self.limit:
-                hq.heappush(self.heap, t)
-
-        return triple
 
 def sumAitken(next_term_function):
     """
