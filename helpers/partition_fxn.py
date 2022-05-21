@@ -40,7 +40,7 @@ class Partitions:
         if reduction_function:
             self.reduce = reduction_function
 
-        self.__validateItems(items, with_repetitions, size_function, reduction_function)
+        self.__validateItems(items)
         self.items = items
         self.items.sort(
             key=lambda item: self.size(item),
@@ -80,7 +80,7 @@ class Partitions:
             print(f"Found {len(parts)} partitions of {obj}!\n")
         return parts
 
-    def __validateFunctions(size_function, reduction_function):
+    def __validateFunctions(self, size_function, reduction_function):
         if size_function is not None:
             if not callable(size_function):
                 raise SizeFunctionNotCallableError()
@@ -93,7 +93,7 @@ class Partitions:
             if size_function is None:
                 raise InvalidArgumentError('Size function provided but no Reduction function provided.')
 
-    def __validateItems(items):
+    def __validateItems(self, items):
         if len(items) == 0:
             raise EmptyItemListError("Provided item list is empty.")
 

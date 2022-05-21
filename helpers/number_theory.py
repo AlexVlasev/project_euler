@@ -116,14 +116,14 @@ class Factorization:
             self.factors[p] *= exponent
         return self
     
-    def __mul__(self, other: Factorization):
+    def __mul__(self, other):
         for p, power in other.factors.items():
             if p not in self.factors:
                 self.factors[p] = 0
             self.factors[p] += power
         return self
     
-    def __truediv__(self, other: Factorization):
+    def __truediv__(self, other):
         for p, power in other.factors.items():
             if p not in self.factors:
                 self.factors[p] = 0
@@ -176,13 +176,13 @@ class FactorizationWithList:
             self.powers[index] *= exponent
         return self
     
-    def __mul__(self, other: FactorizationWithList):
+    def __mul__(self, other):
         powers = other.powers
         for index in range(self.length):
             self.powers[index] += powers[index]
         return self
     
-    def __truediv__(self, other: FactorizationWithList):
+    def __truediv__(self, other):
         powers = other.powers
         for index in range(self.length):
             self.powers[index] -= powers[index]

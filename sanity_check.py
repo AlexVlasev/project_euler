@@ -17,8 +17,8 @@ def checkCheckers():
     assert isPandigital('-1234567', min_digit=1, max_digit=6)
     assert isPandigital(123.4567809)
 
-def checkIteration():
-    from helpers.iteration import PPTIterator
+def checkPythagoreanTriples():
+    from helpers.pythagorean_triples import PPTIterator
 
     def condition(triple):
         c, _, _ = triple
@@ -59,7 +59,7 @@ def checkPartitionFunction():
 
 
 checkCheckers()
-checkIteration()
+checkPythagoreanTriples()
 checkNumberTheory()
 checkPartitionFunction()
 
