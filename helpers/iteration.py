@@ -1,6 +1,12 @@
 import heapq as hq
 
+from errors import InvalidArgumentError
+
+
 def product(iterable, mod=None):
+    """
+    Multiply a sequence of numbers with optional modding.
+    """
     prod = 1
     if mod:
         for x in iterable:
@@ -19,6 +25,11 @@ def subsets(iterable):
     return _subsets
 
 def get_triples(triple):
+    """
+    Get Pythagorean triples starting from a Pythagorean triple.
+    This uses the Pythagorean tree matrices approach. It assumes
+    the triple is given in reverse. It outputs reversed triples.
+    """
     c, b, a = triple
     a2, b2, c2 = 2 * a, 2 * b, 2 * c
     c3 = 3 * c
@@ -29,27 +40,44 @@ def get_triples(triple):
 
 
 class PPTIterator:
-    def __init__(self, limit, condition=None):
+    """
+    This is a Primitive Pythagorean Triple (PPT) iterator implemented using heaps.
+    It starts from the smallest PPT (3, 4, 5) and generates triples up to "limit" in c-value.
+    Triples are generated in increasing c-value. There is an optional stopping condition function.
+
+    You can think of the condition function as making the iterator yield triples only once
+    they satisfy the condition. Example in __main__ below.
+    """
+    def __init__(self, limit, condition_function=None):
         self.limit = limit
         self.heap = [(5, 4, 3)]
-        # self.max_length = 1
-        self.condition = condition
+
+        if condition_function is None:
+            self.__nextFunction = self.__defaultNextFunction
+        else:
+            if not callable(condition_function):
+                raise InvalidArgumentError(f'Provided condition function is not a function. Provided type {type(condition_function)}')
+            self.condition_function = condition_function
+            self.__nextFunction = self.__nextWithCondition
 
     def __iter__(self):
         return self
+
+    def __defaultNextFunction(self):
+        return self.getNextTriple()
     
-    def __next__(self):
-        if not self.condition:
-            return self.grab_next()
-        
-        triple = self.grab_next()
-        valid, value = self.condition(triple)
+    def __nextWithCondition(self):
+        triple = self.getNextTriple()
+        valid, value = self.condition_function(triple)
         while not valid:
-            triple = self.grab_next()
-            valid, value = self.condition(triple)
+            triple = self.getNextTriple()
+            valid, value = self.condition_function(triple)
         return value
     
-    def grab_next(self):
+    def __next__(self):
+        return self.__nextFunction()
+    
+    def getNextTriple(self):
         if not self.heap:
             raise StopIteration
 
@@ -57,10 +85,13 @@ class PPTIterator:
         for t in get_triples(triple):
             if t[0] <= self.limit:
                 hq.heappush(self.heap, t)
-        # self.max_length = max(self.max_length, len(self.heap))
+
         return triple
 
 def sumAitken(next_term_function):
+    """
+    Implementation from Wikipedia.
+    """
     x0 = 0                         
     tolerance = pow(10, -12) # desired precision
     epsilon = pow(10, -16) # min division number
@@ -91,8 +122,16 @@ def sumAitken(next_term_function):
 if __name__ == "__main__":
     def condition(triple):
         c, _, _ = triple
-        return c > 98000
+        return c > 98000, triple
     
-    iterator = PPTIterator(100000, condition=condition)
+    iterator = PPTIterator(100000, condition_function=condition)
     for t in iterator:
         print(t)
+
+    for condition in [1, [], {}, IndexError]:
+        try:
+            iterator = PPTIterator(100000, condition_function=condition)
+        except InvalidArgumentError:
+            pass
+
+    print('Success!')
