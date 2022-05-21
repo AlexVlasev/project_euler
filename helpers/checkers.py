@@ -1,5 +1,4 @@
-class InvalidArgumentError(Exception):
-    pass
+from errors import InvalidArgumentError
 
 def isPalindrome(sequence):
     """
