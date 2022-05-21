@@ -17,6 +17,10 @@ def product(iterable, mod=None):
     return prod
 
 def subsets(iterable):
+    """
+    Obtain the subsets (as lists) of an iterable.
+    The items are assumed to be different.
+    """
     _subsets = [[]]
     for e in iterable:
         _new_subsets = [[*s] for s in _subsets]
@@ -43,10 +47,11 @@ class PPTIterator:
     """
     This is a Primitive Pythagorean Triple (PPT) iterator implemented using heaps.
     It starts from the smallest PPT (3, 4, 5) and generates triples up to "limit" in c-value.
-    Triples are generated in increasing c-value. There is an optional stopping condition function.
+    Triples are generated in increasing c-value.
 
-    You can think of the condition function as making the iterator yield triples only once
-    they satisfy the condition. Example in __main__ below.
+    There is an optional condition function that makes the iterator only yield triples
+    that satisfy the condition. This is useful for problems where triples are required
+    to have a certain form.
     """
     def __init__(self, limit, condition_function=None):
         self.limit = limit
@@ -73,6 +78,11 @@ class PPTIterator:
         if not self.heap:
             raise StopIteration
         
+        """
+        We use a heap to order the triples by size.
+        We use the smallest triple (by c-value) to generate more triples.
+        This ensures that the triples are generated in ascending order.
+        """
         triple = hq.heappop(self.heap)
         for t in get_triples(triple):
             if t[0] <= self.limit:
@@ -84,6 +94,10 @@ class PPTIterator:
         return self.getNextTriple()
     
     def __nextWithCondition(self):
+        """
+        We skip triples that do not satisfy the condition
+        and yield the first triple that does.
+        """
         triple = self.getNextTriple()
         valid, value = self.condition_function(triple)
         while not valid:

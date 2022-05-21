@@ -1,6 +1,8 @@
 from pyprimesieve import primes
+
 from .decorators import cached
 from .iteration import product
+
 
 def factorize(number, prime_numbers=None):
     factors = dict()
